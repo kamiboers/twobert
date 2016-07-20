@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Q*bert: The Reckoning</title>
+  <link rel="stylesheet" href="/css/main.css" charset="utf-8">
+</head>
+<body>
+  <div id="start-menu">
+    <h1>Qbert</h1>
+    <h2>The Reckoning</h2>
+    <p>Use TYGH to move</p>
+    <p>Avoid enemies</p>
+    <div id="start-button"><p>START</p></div>
+  </div>
+  <canvas id="bgCanvas" width="650" height="650"></canvas>
+  <canvas id="charCanvas" width="650" height="650"></canvas>
+  <div id="heads-up-display">
+    <div id="scoreboard">Score: 0</div>
+  </div>
+  <div id="top-left-display">
+    <div id="lives"></div>
+  </div>
+  <div id='fireworks'>
+  <h1 id="congrats"></h1>
+  </div>
+  <div id="end-menu">
+    <h1>GAME OVER</h1>
+    <div id="restart-button"><p>PLAY AGAIN</p></div>
+    <br>
+
+    <div id="score-form">
+      GAME SCORE: <span id="game-score">0</span>
+      <br><br>
+      Enter Your Initials:
+      <input type="text" id="initials" maxlength="3">
+      </input>
+      <br><br>
+      <div id="initials-button">
+        SAVE
+      </div>
+    </div>
+
+    <br>
+    <div id="top-scores">
+      TOP SCORES:
+    </div>
+  </div>
+  <div id='bottom-display'>
+    <div id='controls'>
+      <div id='up'>
+        <div class='label'><p>Up-Left</p></div>
+        <div id='t' class='key'><p>t</p></div>
+        <div id='y' class='key'><p>y</p></div>
+        <div class='label'><p>Up-Right</p></div>
+      </div>
+      <div id='down'>
+        <div class='label'><p>Down-Left</p></div>
+        <div id='g' class='key'><p>g</p></div>
+        <div id='h' class='key'><p>h</p></div>
+        <div class='label'><p>Down-Right</p></div>
+      </div>
+    </div>
+    <div id='characters'>
+      <div id='hero'>
+        <div class='character-label'>
+          <p>Qbert</p>
+        </div>
+        <div class='character-images'>
+          <img class="character-image" src="img/qbert.png" alt="qbert">
+        </div>
+      </div>
+      <div id='enemies'>
+        <div class='character-label'>
+          <p>Enemies</p>
+        </div>
+        <div class='character-images'>
+          <img class="character-image" src="img/ball.png" alt="ball">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id='mobile-controls'>
+    <div id='mobile-UL' class='mobile-buttons'><p>UL</p></div>
+    <div id='mobile-UR' class='mobile-buttons'><p>UR</p></div>
+    <div id='mobile-DL' class='mobile-buttons'><p>DL</p></div>
+    <div id='mobile-DR' class='mobile-buttons'><p>DR</p></div>
+  </div>
+
+  <script src="main.bundle.js"></script>
+  <script src="https://use.typekit.net/ocl5vgd.js"></script>
+  <script>try{Typekit.load({ async: true });}catch(e){}</script>
+</body>
+</html>

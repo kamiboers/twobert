@@ -1,0 +1,269 @@
+body {
+	background-color: black;
+	font-family: "ocr-a-std", monospace;
+}
+
+#bgCanvas, #charCanvas, #start-menu, #end-menu {
+	display: block;
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: auto;
+}
+
+#bgCanvas {
+  background-color: black;
+  z-index: 0;
+}
+
+#charCanvas {
+  background-color: transparent;
+  z-index: 1;
+}
+
+#start-menu, #end-menu, #fireworks {
+	background-color: black;
+	text-align: center;
+	color: white;
+	padding: 0;
+	font-family: "ocr-a-std", monospace;
+	width: 650px;
+	height: 650px;
+	position: absolute;
+  z-index: 101;
+}
+
+#end-menu {
+	font-family: "ocr-a-std", monospace;
+  display: none;
+}
+
+#start-menu h1 {
+	font-size: 8em;
+}
+
+#start-menu h2 {
+	font-size: 4em;
+	line-height: 0;
+}
+
+#start-menu p, #end-menu p {
+	font-size: 2em;
+}
+
+#start-button, #restart-button {
+	text-align: center;
+	line-height: 1em;
+	padding: 1px 40px;
+	background-color: #ff66ff;
+	margin: 0 auto;
+}
+
+#start-button {
+  width: 160px;
+  border-radius: 10px;
+}
+
+#restart-button {
+  width: 350px;
+  border-radius: 10px;
+}
+
+#start-button:hover, #restart-button:hover, #initials-button:hover {
+	cursor: pointer;
+}
+
+#heads-up-display {
+	background-color: transparent;
+	width: 650px;
+	height: 142px;
+	display: block;
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: auto;
+}
+
+#scoreboard {
+	text-align: center;
+	color: white;
+	border: solid green 1px;
+	font-family: "ocr-a-std", monospace;
+	width: 150px;
+	height: 100px;
+	float: right;
+	background-color: black;
+	margin: 20px;
+	padding: 10px;
+	z-index: 50;
+}
+
+#bottom-display {
+	background-color: black;
+	border: 1px solid green;
+	width: 646px;
+	height: 110px;
+	display: block;
+	position: absolute;
+	top: 536px;
+	left: 0;
+	right: 0;
+	margin: auto;
+	z-index: 50;
+	padding-top: 10px;
+}
+
+#controls, #characters {
+	color: white;
+	float: left;
+	padding: 10px;
+}
+
+#controls {
+	width: 360px;
+}
+
+#controls p {
+	margin: 10px 0 0 0;
+}
+
+#characters {
+	width: 180px;
+}
+
+#up, #down {
+	display: inline-block;
+	margin: 0;
+}
+
+.label, .key {
+	float: left;
+	text-align: center;
+}
+
+.key {
+	height: 36px;
+	width: 36px;
+	border: 1px solid white;
+	margin: 0 2px;
+}
+
+.label {
+	height: 36px;
+	width: 136px;
+}
+
+.character-label, .character-images {
+	height: 36px;
+	float: left;
+}
+
+.character-label {
+	width: 140px;
+}
+
+.character-label p {
+	margin: 10px 0 0 0;
+}
+
+
+#hero {
+	display: inline-block;
+}
+
+#mobile-controls {
+	color: white;
+	display: block;
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: auto;
+	width: 650px;
+	top: 658px;
+	display: none;
+}
+
+#initials-button {
+	background-color: #7b68ee;
+	color: white;
+	text-align: center;
+	vertical-align: center;
+	width: 20%;
+	margin: 0 auto;
+	font-size: 20px;
+	border-radius: 10px;
+	padding: 20px;
+}
+
+#initials {
+	border: 2px dotted;
+	width: 200px;
+	height: 50px;
+	background-color: black;
+	color: lawngreen;
+	font-size: 30px;
+	border-radius: 10px;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+#top-scores {
+	font-size: 30px;
+	margin-left: auto;
+	margin-right: auto;
+	align-content: center;
+}
+
+table#scores-table {
+margin-left: 32%
+}
+
+td.names-col {
+	align-content: left;
+}
+
+td.scores-col {
+	width: 250px;
+	align-content: right;
+}
+
+.mobile-buttons {
+	float: left;
+	width: 323px;
+	border: 1px solid white;
+	height: 323px;
+	font-size: 8em;
+	text-align: center;
+}
+
+#fireworks {
+	background-color: black;
+	display: none;
+	color: pink;
+	height: 100%;
+	width: 100%;
+	opacity: .8;
+	word-wrap: break-word;
+}
+
+#congrats {
+	margin-top: 200px;
+}
+
+#top-left-display {	
+	margin-left: 27%;
+	padding: 0;
+	font-family: "ocr-a-std", monospace;
+	width: 650px;
+	height: 650px;
+	position: absolute;
+  background-color: transparent;
+  z-index: 50;
+}
+
+#lives {
+	margin-top: 10px;
+	width: 200px;
+	height: 100px;
+	z-index: 50;
+}
