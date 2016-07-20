@@ -87,6 +87,20 @@
     <div id='mobile-DR' class='mobile-buttons'><p>DR</p></div>
   </div>
 
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // var socket = io.connect('http://localhost');
+    // socket.on('news', function (data) {
+    //   console.log(data);
+    //   socket.emit('my other event', { my: 'data' });
+    // });
+    // setup my socket client
+    var socket = io();
+    socket.connect( function(e) {
+    // someone clicked send a message
+    socket.emit('message', 'hello world!');
+    });
+  </script>
   <script src="main.bundle.js"></script>
   <script src="https://use.typekit.net/ocl5vgd.js"></script>
   <script>try{Typekit.load({ async: true });}catch(e){}</script>
