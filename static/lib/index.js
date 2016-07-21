@@ -1,6 +1,6 @@
 var Game = require('./game');
 var game = new Game();
-var $    = require('jQuery');
+var $ = require('jQuery');
 
 var startMenu     = $("#start-menu");
 var endMenu       = $("#end-menu");
