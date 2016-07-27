@@ -136,8 +136,8 @@
 	  this.charContext = this.charCanvas.getContext('2d');
 	  this.score = new Score();
 	  this.board = new Board({ context: this.bgContext, score: this.score });
-	  this.qbert = new Qbert({ context: this.charContext, board: this.board, num: 1 });
-	  this.twobert = new Qbert({ context: this.charContext, board: this.board, num: 2 });
+	  this.qbert = new Qbert({ context: this.charContext, board: this.board, num: 1, position: 21, x: 85, y: 420 });
+	  this.twobert = new Qbert({ context: this.charContext, board: this.board, num: 2, position: 27, x: 565, y: 420 });
 	  this.ball = new Ball({ context: this.charContext, board: this.board });
 	  this.draw = new Draw({ qbert: this.qbert,
 	    twobert: this.twobert,
@@ -181,6 +181,7 @@
 	  this.resetCubes();
 	  this.resetLives();
 	  this.resetQbert();
+	  this.resetTwobert();
 	  this.resetCharacters();
 	  this.resetScore();
 	  this.resetDifficulty();
@@ -205,7 +206,7 @@
 	  setTimeout(function () {
 	    $('#fireworks').fadeOut();
 	    $('#congrats').text("");
-	  }, 2000);
+	  }, 3000);
 	};
 
 	Game.prototype.resetCubes = function () {
@@ -221,10 +222,10 @@
 	};
 
 	Game.prototype.resetQbert = function () {
-	  this.qbert.currentPosition = 0;
-	  this.qbert.nextPosition = 0;
-	  this.qbert.x = 325;
-	  this.qbert.y = 60;
+	  this.qbert.currentPosition = 21;
+	  this.qbert.nextPosition = 21;
+	  this.qbert.x = 85;
+	  this.qbert.y = 420;
 	  this.qbert.targetX = 0;
 	  this.qbert.xVelocity = 0;
 	  this.qbert.yVelocity = 0;
@@ -232,10 +233,10 @@
 	};
 
 	Game.prototype.resetTwobert = function () {
-	  this.twobert.currentPosition = 0;
-	  this.twobert.nextPosition = 0;
-	  this.twobert.x = 325;
-	  this.twobert.y = 60;
+	  this.twobert.currentPosition = 28;
+	  this.twobert.nextPosition = 28;
+	  this.twobert.x = 565;
+	  this.twobert.y = 420;
 	  this.twobert.targetX = 0;
 	  this.twobert.xVelocity = 0;
 	  this.twobert.yVelocity = 0;
@@ -243,8 +244,7 @@
 	};
 
 	Game.prototype.resetCharacters = function () {
-	  this.draw.characters = [this.qbert];
-	  this.draw.characters = [this.twobert];
+	  this.draw.characters = [this.qbert, this.twobert];
 	  this.draw.enemies = [];
 	  this.qbert.setBoard(this.board);
 	  this.twobert.setBoard(this.board);
@@ -10491,11 +10491,11 @@
 
 	function Qbert(params) {
 	  this.lives = 3;
-	  this.currentPosition = 0;
-	  this.nextPosition = 0;
+	  this.currentPosition = params['position'] || 0;
+	  this.nextPosition = params['position'] || 0;
 	  this.board = params['board'];
-	  this.x = 325;
-	  this.y = 60;
+	  this.x = params['x'] || 325;
+	  this.y = params['y'] || 60;
 	  this.targetX = 0;
 	  this.xVelocity = 0;
 	  this.yVelocity = 0;
@@ -10503,11 +10503,13 @@
 	  this.jumping = false;
 	  this.alive = true;
 	  this.identity = params['num'];
+	  this.dying = false;
 	}
 
 	Qbert.prototype.update = function () {
 	  if (this.nextPosition === null && this.y < 620) {
 	    // add method to pull out this logic
+	    this.dying = true;
 	    this.x += this.xVelocity;
 	    this.y += this.yVelocity;
 	    this.yVelocity += 0.5;
@@ -10532,6 +10534,9 @@
 	};
 
 	Qbert.prototype.draw = function () {
+	  if (this.dying) {
+	    this.drawBubble(this.x + 15, this.y - 20, 135, 20, 10);
+	  }
 	  if (this.identity == 1) {
 	    this.context.lineWidth = 5;
 	    this.context.strokeStyle = '#ffccff';
@@ -10555,6 +10560,7 @@
 	  this.yVelocity = 0;
 	  this.currentPosition = 0;
 	  this.nextPosition = 0;
+	  this.dying = false;
 	};
 
 	Qbert.prototype.setBoard = function (board) {
@@ -10604,6 +10610,56 @@
 	    this.nextPosition = this.onCube().downRightId;
 	  }
 	};
+
+	Qbert.prototype.drawBubble = function (x, y, w, h, radius, text) {
+	  var r = x + w;
+	  var b = y - h;
+	  this.context.beginPath();
+	  this.context.strokeStyle = "white";
+	  this.context.lineWidth = "5";
+
+	  var handle = {
+	    x1: x + radius,
+	    y1: y,
+	    x2: x + radius / 2,
+	    y2: y + 10,
+	    x3: x + radius * 2,
+	    y3: y
+	  };
+	  this.context.moveTo(handle.x1, handle.y1);
+	  this.context.lineTo(handle.x2, handle.y2);
+	  this.context.lineTo(handle.x3, handle.y3);
+
+	  this.context.lineTo(r - radius, y);
+	  this.context.quadraticCurveTo(r, y, r, y - radius);
+	  this.context.lineTo(r, y - h + radius);
+	  this.context.quadraticCurveTo(r, b, r - radius, b);
+	  this.context.lineTo(x + radius, b);
+	  this.context.quadraticCurveTo(x, b, x, b + radius);
+	  this.context.lineTo(x, b + radius);
+	  this.context.quadraticCurveTo(x, y, x + radius, y);
+	  this.context.stroke();
+	  this.context.fillStyle = "white";
+	  this.context.fill();
+
+	  this.context.font = "18px Comic Sans MS";
+	  this.context.fillStyle = "red";
+
+	  this.context.fillText('motherfucker!', x + 10, y - 5);
+
+	  return handle;
+	};
+
+	// Qbert.prototype.setMessage = function() {
+	//   var messages =  [ "fuck",
+	//                     // "&$#@*&@",
+	//                     // "farewell",
+	//                     // "agh!",
+	//                     // "I'M EVERY WOMAN!!! IT'S ALL IN MEEEEEEEEEEEE!!! ANYTHING YOU WANT DONE BABY I'LL DO IT NATURALLY!!! (OHH OHH OOOHHHH)"
+	//                   ];
+
+	//   return messages[Math.floor(Math.random() * messages.length)]
+	// };
 
 	module.exports = Qbert;
 
@@ -10913,15 +10969,34 @@
 
 	Draw.prototype.detectCollisions = function () {
 	  var qbert = this.qbert;
+	  var twobert = this.twobert;
 
 	  this.enemies.forEach(function (enemy) {
 	    var xDistance = enemy.x - qbert.x;
 	    var yDistance = enemy.y - qbert.y;
 	    var distance = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
 
-	    if (distance < 20) {
-	      console.log(enemy.currentPosition);
-	      qbert.die();
+	    if (distance < 20 && qbert.dying == false) {
+	      // console.log(enemy.currentPosition);
+	      qbert.dying = true;
+	      qbert.downLeft();
+	      qbert.nextPosition = null;
+	      // setTimeout(function(){qbert.die();}, 1000)
+	    }
+	  });
+
+	  this.enemies.forEach(function (enemy) {
+	    var xDistance = enemy.x - twobert.x;
+	    var yDistance = enemy.y - twobert.y;
+	    var distance = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
+
+	    if (distance < 20 && twobert.dying == false) {
+	      // console.log(enemy.currentPosition);
+	      twobert.dying = true;
+	      twobert.downRight();
+	      twobert.nextPosition = null;
+
+	      // setTimeout(function(){twobert.die();}, 1000)
 	    }
 	  });
 	};

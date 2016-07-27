@@ -52,15 +52,36 @@ Draw.prototype.drawCharacters = function() {
 
 Draw.prototype.detectCollisions = function() {
   var qbert = this.qbert;
-
+  var twobert = this.twobert;
+  
   this.enemies.forEach(function(enemy){
     var xDistance = enemy.x - qbert.x;
     var yDistance = enemy.y - qbert.y;
     var distance  = Math.sqrt((xDistance * xDistance) + (yDistance * yDistance));
 
-    if(distance < 20){
-      console.log(enemy.currentPosition);
-      qbert.die();
+    if(distance < 20 && qbert.dying == false){
+      // console.log(enemy.currentPosition);
+      qbert.dying = true;
+      qbert.downLeft(); 
+      qbert.nextPosition = null;
+      // setTimeout(function(){qbert.die();}, 1000)
+      
+    }
+  });
+
+  this.enemies.forEach(function(enemy){
+    var xDistance = enemy.x - twobert.x;
+    var yDistance = enemy.y - twobert.y;
+    var distance  = Math.sqrt((xDistance * xDistance) + (yDistance * yDistance));
+
+    if(distance < 20 && twobert.dying == false){
+      // console.log(enemy.currentPosition);
+      twobert.dying = true;
+      twobert.downRight();
+      twobert.nextPosition = null;
+
+      // setTimeout(function(){twobert.die();}, 1000)
+      
     }
   });
 };
