@@ -48,7 +48,7 @@
 
 	var Game = __webpack_require__(1);
 	var game = new Game();
-	var $ = __webpack_require__(10);
+	var $ = __webpack_require__(2);
 
 	var startMenu = $("#start-menu");
 	var endMenu = $("#end-menu");
@@ -76,29 +76,44 @@
 	    'totalScore': $('#game-score').text()
 	  };
 
-	  var lsGames = localStorage.getItem('games') || '[]';
-	  var games = JSON.parse(lsGames);
+	  var standings = currentTopScores();
+	  addCurrentGame(input, standings);
+	  sortTopGames(standings);
+	  displayTopScores();
+	});
 
+	function currentTopScores() {
+	  var standings = localStorage.getItem('games') || '[]';
+	  return JSON.parse(standings);
+	}
+
+	function addCurrentGame(input, standings) {
 	  if (input.player !== "") {
-	    games.push(input);
-	    localStorage.setItem('games', JSON.stringify(games));
+	    standings.push(input);
+	    localStorage.setItem('games', JSON.stringify(standings));
 	  }
+	}
 
-	  games = games.sort(function (a, b) {
+	function sortTopGames(standings) {
+	  var games = standings.sort(function (a, b) {
 	    return b.totalScore - a.totalScore;
 	  }).slice(0, 5);
 
-	  topScores.innerHTML = "";
+	  var data = "<h4>TOP SCORES</h4><table id='scores-table'><tr><td></td><td></tr>";
 
 	  games.forEach(function (game) {
-	    topScores.innerHTML = topScores.innerHTML + '<li>' + game.player + ": " + game.totalScore + '</li>';
+	    data += "<tr><td class='names-col'>" + game.player + "</td><td class='scores-col'> " + game.totalScore + "</td></tr>";
 	  });
 
+	  data += '</table>';
+	  topScores.innerHTML = data;
+	}
+
+	function displayTopScores() {
 	  scoreForm.fadeOut('fast');
 	  topScoresMenu.fadeIn('slow');
-
 	  $('#initials').val("");
-	});
+	}
 
 /***/ },
 /* 1 */
@@ -106,11 +121,12 @@
 
 	'use strict';
 
-	var Board = __webpack_require__(2);
-	var Qbert = __webpack_require__(4);
-	var Ball = __webpack_require__(5);
-	var UserInput = __webpack_require__(7);
-	var Draw = __webpack_require__(8);
+	var $ = __webpack_require__(2);
+	var Board = __webpack_require__(3);
+	var Qbert = __webpack_require__(5);
+	var Ball = __webpack_require__(6);
+	var UserInput = __webpack_require__(8);
+	var Draw = __webpack_require__(9);
 	var Score = __webpack_require__(11);
 
 	function Game() {
@@ -120,9 +136,11 @@
 	  this.charContext = this.charCanvas.getContext('2d');
 	  this.score = new Score();
 	  this.board = new Board({ context: this.bgContext, score: this.score });
-	  this.qbert = new Qbert({ context: this.charContext, board: this.board });
+	  this.qbert = new Qbert({ context: this.charContext, board: this.board, num: 1 });
+	  this.twobert = new Qbert({ context: this.charContext, board: this.board, num: 2 });
 	  this.ball = new Ball({ context: this.charContext, board: this.board });
 	  this.draw = new Draw({ qbert: this.qbert,
+	    twobert: this.twobert,
 	    context: this.charContext,
 	    canvas: this.charCanvas,
 	    board: this.board,
@@ -134,6 +152,7 @@
 	Game.prototype.setInput = function () {
 	  var input = new UserInput({ level: this.board,
 	    player: this.qbert,
+	    player2: this.twobert,
 	    context: this.charContext,
 	    canvas: this.charCanvas
 	  });
@@ -173,8 +192,20 @@
 	Game.prototype.resetLevel = function () {
 	  this.resetCubes();
 	  this.resetQbert();
+	  this.resetTwobert();
 	  this.resetCharacters();
 	  this.resetTick();
+	  this.celebrate();
+	};
+
+	Game.prototype.celebrate = function () {
+	  var messages = ["AWWWW YEAH!!!", "YOU DID IT!!!", "SWEET HOME ALABAMA!!!", "WOOT!!!", "YAY!!!", "ROCKIN' ROBIN!!!", "HURRAH!!!", "JIMINY CRICKETS!!!", "I AIN'T NEVER SCARED!!!", "R-E-S-P-E-C-T", "VALAR MORGHULIS!!!", "WINTER IS HERE!!!", "WE OUT HERE!!!", "JIMENY CRICKETS!!!", "I'M EVERY WOMAN!!! IT'S ALL IN MEEEEEEEEEEEE!!! ANYTHING YOU WANT DONE BABY I'LL DO IT NATURALLY!!! (OHH OHH OOOHHHH)"];
+	  $('#fireworks').show();
+	  $('#congrats').text(messages[Math.floor(Math.random() * messages.length)]);
+	  setTimeout(function () {
+	    $('#fireworks').fadeOut();
+	    $('#congrats').text("");
+	  }, 2000);
 	};
 
 	Game.prototype.resetCubes = function () {
@@ -200,10 +231,23 @@
 	  this.qbert.jumping = false;
 	};
 
+	Game.prototype.resetTwobert = function () {
+	  this.twobert.currentPosition = 0;
+	  this.twobert.nextPosition = 0;
+	  this.twobert.x = 325;
+	  this.twobert.y = 60;
+	  this.twobert.targetX = 0;
+	  this.twobert.xVelocity = 0;
+	  this.twobert.yVelocity = 0;
+	  this.twobert.jumping = false;
+	};
+
 	Game.prototype.resetCharacters = function () {
 	  this.draw.characters = [this.qbert];
+	  this.draw.characters = [this.twobert];
 	  this.draw.enemies = [];
 	  this.qbert.setBoard(this.board);
+	  this.twobert.setBoard(this.board);
 	};
 
 	Game.prototype.reanimate = function () {
@@ -235,588 +279,6 @@
 
 /***/ },
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Cube = __webpack_require__(3);
-
-	function Board(params) {
-	  this.cubes = [];
-	  this.level = params['level'];
-	  this.context = params['context'];
-	  this.qbert = params['qbert'];
-	  this.score = params['score'];
-	}
-
-	Board.prototype.initializeCubes = function () {
-	  for (var i = 0; i < 7; i++) {
-	    for (var j = 0; j <= i; j++) {
-	      var newParams = {
-	        id: this.cubes.length,
-	        x: 325 - i * 40 + j * 80,
-	        y: 60 + i * 60,
-	        upLeftId: j > 0 ? this.cubes.length - i - 1 : null,
-	        upRightId: j < i ? this.cubes.length - i : null,
-	        downLeftId: this.cubes.length + (i + 1) <= 27 ? this.cubes.length + (i + 1) : null,
-	        downRightId: this.cubes.length + (i + 2) <= 27 ? this.cubes.length + (i + 2) : null,
-	        context: this.context
-	      };
-	      var cube = new Cube(newParams);
-	      this.cubes.push(cube);
-	    }
-	  }
-	};
-
-	Board.prototype.drawCubes = function () {
-	  this.cubes.forEach(function (cube) {
-	    cube.drawCube();
-	  });
-	};
-
-	Board.prototype.drawScoreBoard = function () {
-	  var scoreDiv = document.getElementById('scoreboard');
-	  scoreDiv.innerHTML = "Score: " + this.score.total;
-	};
-
-	Board.prototype.activateCube = function (id) {
-	  this.score.increase(25);
-	  this.cubes[id].active = true;
-	  this.cubes[id].drawCube();
-	};
-
-	module.exports = Board;
-
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	function Cube(params) {
-	  this.active = false;
-	  this.id = params["id"];
-	  this.x = params["x"];
-	  this.y = params["y"];
-	  this.upLeftId = params["upLeftId"];
-	  this.upRightId = params["upRightId"];
-	  this.downLeftId = params["downLeftId"];
-	  this.downRightId = params["downRightId"];
-	  this.context = params['context'];
-	}
-
-	Cube.prototype.drawCube = function () {
-	  var topColor = "";
-	  if (this.active) {
-	    topColor = '#FFCC46';
-	  } else {
-	    topColor = '#3B6D80';
-	  }
-
-	  this.context.beginPath();
-	  this.context.moveTo(this.x, this.y);
-	  this.context.lineTo(this.x + 40, this.y + 10);
-	  this.context.lineTo(this.x, this.y + 20);
-	  this.context.lineTo(this.x - 40, this.y + 10);
-	  this.context.fillStyle = topColor;
-	  this.context.fill();
-	  this.context.beginPath();
-	  this.context.moveTo(this.x, this.y + 20);
-	  this.context.lineTo(this.x, this.y + 70);
-	  this.context.lineTo(this.x + 40, this.y + 60);
-	  this.context.lineTo(this.x + 40, this.y + 10);
-	  this.context.fillStyle = "#47528B";
-	  this.context.fill();
-	  this.context.beginPath();
-	  this.context.moveTo(this.x, this.y + 20);
-	  this.context.lineTo(this.x, this.y + 70);
-	  this.context.lineTo(this.x - 40, this.y + 60);
-	  this.context.lineTo(this.x - 40, this.y + 10);
-	  this.context.fillStyle = "#529A68";
-	  this.context.fill();
-	};
-
-	module.exports = Cube;
-
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	function Qbert(params) {
-	  this.lives = 3;
-	  this.currentPosition = 0;
-	  this.nextPosition = 0;
-	  this.board = params['board'];
-	  this.x = 325;
-	  this.y = 60;
-	  this.targetX = 0;
-	  this.xVelocity = 0;
-	  this.yVelocity = 0;
-	  this.context = params['context'];
-	  this.jumping = false;
-	  this.alive = true;
-	}
-
-	Qbert.prototype.update = function () {
-	  if (this.nextPosition === null && this.y < 620) {
-	    this.x += this.xVelocity;
-	    this.y += this.yVelocity;
-	    this.yVelocity += 0.5;
-	  } else if (this.nextPosition === null && this.y > 620) {
-	    this.die();
-	  } else if (this.x !== this.targetX) {
-	    this.x += this.xVelocity;
-	    this.y += this.yVelocity;
-	    if (this.jumping === true) {
-	      this.yVelocity += 0.5;
-	    }
-	  } else {
-	    this.jumping = false;
-	    this.xVelocity = 0;
-	    this.yVelocity = 0;
-	    this.currentPosition = this.nextPosition;
-
-	    if (this.board.cubes[this.currentPosition].active === false) {
-	      this.board.activateCube(this.currentPosition);
-	    }
-	  }
-	};
-
-	Qbert.prototype.draw = function () {
-	  this.context.fillStyle = '#ff66ff';
-	  this.context.fillRect(this.x - 10, this.y - 10, 20, 20);
-	};
-
-	Qbert.prototype.die = function () {
-	  this.lives--;
-	  this.jumping = false;
-	  this.x = 325;
-	  this.y = 60;
-	  this.xVelocity = 0;
-	  this.yVelocity = 0;
-	  this.currentPosition = 0;
-	  this.nextPosition = 0;
-	};
-
-	Qbert.prototype.setBoard = function (board) {
-	  this.board = board;
-	};
-
-	Qbert.prototype.onCube = function () {
-	  return this.board.cubes[this.currentPosition] || this.board.cubes[0];
-	};
-
-	Qbert.prototype.upRight = function () {
-	  if (this.jumping === false) {
-	    this.targetX = this.x + 40;
-	    this.xVelocity = +2;
-	    this.yVelocity = -7.75;
-	    this.jumping = true;
-	    this.nextPosition = this.onCube().upRightId;
-	  }
-	};
-
-	Qbert.prototype.upLeft = function () {
-	  if (this.jumping === false) {
-	    this.targetX = this.x - 40;
-	    this.xVelocity = -2;
-	    this.yVelocity = -7.75;
-	    this.jumping = true;
-	    this.nextPosition = this.onCube().upLeftId;
-	  }
-	};
-
-	Qbert.prototype.downLeft = function () {
-	  if (this.jumping === false) {
-	    this.targetX = this.x - 40;
-	    this.xVelocity = -2;
-	    this.yVelocity = -1.75;
-	    this.jumping = true;
-	    this.nextPosition = this.onCube().downLeftId;
-	  }
-	};
-
-	Qbert.prototype.downRight = function () {
-	  if (this.jumping === false) {
-	    this.targetX = this.x + 40;
-	    this.xVelocity = +2;
-	    this.yVelocity = -1.75;
-	    this.jumping = true;
-	    this.nextPosition = this.onCube().downRightId;
-	  }
-	};
-
-	module.exports = Qbert;
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var enemyPosition = __webpack_require__(6);
-
-	function Ball(params) {
-	  this.newPosition = enemyPosition();
-	  this.currentPosition = this.newPosition.position;
-	  this.nextPosition = this.newPosition.position;
-	  this.board = params['board'];
-	  this.x = this.newPosition.x;
-	  this.y = 120;
-	  this.targetX = 0;
-	  this.xVelocity = 0;
-	  this.yVelocity = 0;
-	  this.context = params['context'];
-	  this.jumping = false;
-	  this.moveInterval = 50;
-	  this.alive = true;
-	}
-
-	Ball.prototype.update = function (tick) {
-	  if (tick % this.moveInterval === 0) {
-	    this.move();
-	  }
-
-	  if (this.nextPosition === null && this.y < 620) {
-	    this.x += this.xVelocity;
-	    this.y += this.yVelocity;
-	    this.yVelocity += 0.5;
-	  } else if (this.nextPosition === null && this.y > 620) {
-	    this.die();
-	  } else if (this.x !== this.targetX) {
-	    this.x += this.xVelocity;
-	    this.y += this.yVelocity;
-	    if (this.jumping === true) {
-	      this.yVelocity += 0.5;
-	    }
-	  } else {
-	    this.jumping = false;
-	    this.xVelocity = 0;
-	    this.yVelocity = 0;
-	    this.currentPosition = this.nextPosition;
-	  }
-	};
-
-	Ball.prototype.getYPosition = function () {
-	  return this.onCube.y;
-	};
-
-	Ball.prototype.onCube = function () {
-	  return this.board.cubes[this.currentPosition] || this.board.cubes[0];
-	};
-
-	Ball.prototype.draw = function () {
-	  this.context.fillStyle = 'crimson';
-	  this.context.beginPath();
-	  this.context.arc(this.x, this.y - 10, 15, 0, 2 * Math.PI, false);
-	  this.context.fill();
-	};
-
-	Ball.prototype.move = function () {
-	  var chance = Math.random();
-	  if (chance > 0.5) {
-	    this.downLeft();
-	  } else {
-	    this.downRight();
-	  }
-	};
-
-	Ball.prototype.die = function () {
-	  this.jumping = false;
-	  this.alive = false;
-	};
-
-	Ball.prototype.downLeft = function () {
-	  this.targetX = this.x - 40;
-	  console.log(this.targetX);
-	  this.xVelocity = -2;
-	  console.log(this.xVelocity);
-	  this.yVelocity = -1.75;
-	  console.log(this.yVelocity);
-	  this.jumping = true;
-	  console.log(this.jumping);
-	  this.nextPosition = this.onCube().downLeftId;
-	  console.log(this.nextPosition);
-	};
-
-	Ball.prototype.downRight = function () {
-	  this.targetX = this.x + 40;
-	  this.xVelocity = +2;
-	  this.yVelocity = -1.75;
-	  this.jumping = true;
-	  this.nextPosition = this.onCube().downRightId;
-	};
-
-	module.exports = Ball;
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	var enemyPosition = function enemyPosition() {
-	  var newPosition = null;
-	  var newX = null;
-
-	  var chance = Math.random();
-	  if (chance > 0.5) {
-	    newPosition = 1;
-	    newX = 285;
-	  } else {
-	    newPosition = 2;
-	    newX = 365;
-	  }
-	  return { position: newPosition, x: newX };
-	};
-
-	module.exports = enemyPosition;
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	function UserInput(params) {
-	  this.level = params['level'];
-	  this.player = params['player'];
-	  this.context = params['context'];
-	  this.canvas = params['canvas'];
-	}
-
-	UserInput.prototype.setInput = function () {
-	  window.addEventListener("keydown", keyPress, false);
-	  window.addEventListener("keyup", keyRelease, false);
-
-	  var level = this.level;
-	  var player = this.player;
-	  var context = this.context;
-	  var canvas = this.canvas;
-	  var tKey = document.getElementById("t");
-	  var yKey = document.getElementById("y");
-	  var gKey = document.getElementById("g");
-	  var hKey = document.getElementById("h");
-
-	  function keyPress(e) {
-	    var code = e.keyCode;
-	    if (code === 72) {
-	      player.downRight();
-	      hKey.style.backgroundColor = '#47528B';
-	    } else if (code === 71) {
-	      player.downLeft();
-	      gKey.style.backgroundColor = '#47528B';
-	    } else if (code === 84) {
-	      player.upLeft();
-	      tKey.style.backgroundColor = '#47528B';
-	    } else if (code === 89) {
-	      player.upRight();
-	      yKey.style.backgroundColor = '#47528B';
-	    }
-
-	    if (player.position != null) {
-	      level.activateCube(player.position);
-	    }
-	    context.clearRect(0, 0, canvas.width, canvas.height);
-	    player.draw();
-	  }
-
-	  function keyRelease(e) {
-	    var code = e.keyCode;
-
-	    if (code === 72) {
-	      hKey.style.backgroundColor = 'black';
-	    } else if (code === 71) {
-	      gKey.style.backgroundColor = 'black';
-	    } else if (code === 84) {
-	      tKey.style.backgroundColor = 'black';
-	    } else if (code === 89) {
-	      yKey.style.backgroundColor = 'black';
-	    }
-	  }
-	};
-
-	UserInput.prototype.setMobileInput = function () {
-	  var mobile = document.getElementById('mobile-controls');
-	  mobile.style.display = 'block';
-	  var upLeft = document.getElementById('mobile-UL');
-	  var upRight = document.getElementById('mobile-UR');
-	  var downLeft = document.getElementById('mobile-DL');
-	  var downRight = document.getElementById('mobile-DR');
-	  var player = this.player;
-
-	  console.log(upRight);
-
-	  upLeft.addEventListener('click', function () {
-	    player.upLeft();
-	  }, false);
-	  upRight.addEventListener('click', function () {
-	    player.upRight();
-	  }, false);
-	  downLeft.addEventListener('click', function () {
-	    player.downLeft();
-	  }, false);
-	  downRight.addEventListener('click', function () {
-	    player.downRight();
-	  }, false);
-	};
-
-	module.exports = UserInput;
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var EndGame = __webpack_require__(9);
-	var Ball = __webpack_require__(5);
-
-	function Draw(params) {
-	  this.context = params['context'];
-	  this.canvas = params['canvas'];
-	  this.qbert = params['qbert'];
-	  this.board = params['board'];
-	  this.score = params['score'];
-	  this.game = params['game'];
-	  this.characters = [this.qbert];
-	  this.enemies = [];
-	  this.tick = 0;
-	  this.enemyFreq = 500;
-	  this.level = 1;
-	}
-
-	Draw.prototype.drawFrame = function () {
-	  this.clearContext();
-	  this.updateCharacters();
-	  this.drawCharacters();
-	  this.detectCollisions();
-	  this.addEnemies();
-	  this.tick++;
-	  this.checkLevel();
-	  this.checkEnd();
-	  this.drawScore();
-	};
-
-	Draw.prototype.clearContext = function () {
-	  this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-	};
-
-	Draw.prototype.updateCharacters = function () {
-	  this.characters = this.characters.filter(function (character) {
-	    return character.alive === true;
-	  });
-
-	  var currentTick = this.tick;
-	  this.characters.forEach(function (character) {
-	    character.update(currentTick);
-	  });
-	};
-
-	Draw.prototype.drawCharacters = function () {
-	  this.characters.forEach(function (character) {
-	    character.draw();
-	  });
-	};
-
-	Draw.prototype.detectCollisions = function () {
-	  var qbert = this.qbert;
-
-	  this.enemies.forEach(function (enemy) {
-	    var xDistance = enemy.x - qbert.x;
-	    var yDistance = enemy.y - qbert.y;
-	    var distance = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
-
-	    if (distance < 20) {
-	      console.log(enemy.currentPosition);
-	      qbert.die();
-	    }
-	  });
-	};
-
-	Draw.prototype.addEnemies = function () {
-	  if (this.tick !== 0 && this.tick % this.enemyFreq === 0) {
-	    var ball = new Ball({ board: this.board, context: this.context });
-	    this.characters.push(ball);
-	    this.enemies.push(ball);
-	  }
-	};
-
-	Draw.prototype.checkLevel = function () {
-	  var cubesRemaining = this.board.cubes.filter(function (cube) {
-	    return cube.active === false;
-	  });
-	  if (cubesRemaining.length === 0) {
-	    this.level++;
-	    if (this.enemyFreq > 100) {
-	      this.enemyFreq -= 100;
-	    } else {
-	      this.enemyFreq = this.enemyFreq / 2;
-	    }
-	    this.game.resetLevel();
-	  }
-	};
-
-	Draw.prototype.drawScore = function () {
-	  var scoreDiv = document.getElementById('scoreboard');
-	  var content = "SCORE: " + this.score.total;
-	  scoreDiv.innerHTML = content;
-	};
-
-	Draw.prototype.drawScore = function () {
-	  var scoreDiv = document.getElementById('scoreboard');
-	  var content = "SCORE: " + this.score.total;
-	  scoreDiv.innerHTML = content;
-	};
-
-	Draw.prototype.checkEnd = function () {
-	  if (this.qbert.lives === 0) {
-	    var endGame = new EndGame(this.score);
-	    endGame.end();
-	  } else {
-	    var self = this;
-	    window.requestAnimationFrame(function () {
-	      self.drawFrame();
-	    });
-	  }
-	};
-
-	module.exports = Draw;
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var $ = __webpack_require__(10);
-
-	function EndGame(score) {
-	  this.endMenu = $("#end-menu");
-	  this.score = score;
-	}
-
-	EndGame.prototype.end = function () {
-	  $('#game-score').text(this.score.total);
-	  $('#score-form').show();
-	  $('#top-scores').hide();
-	  this.endMenu.fadeIn('slow', function () {
-	    clearCharacter();
-	  });
-	};
-
-	function clearCharacter() {
-	  var canvas = document.getElementById("charCanvas");
-	  var context = canvas.getContext('2d');
-	  context.clearRect(0, 0, canvas.width, canvas.height);
-	}
-
-	module.exports = EndGame;
-
-/***/ },
-/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*eslint-disable no-unused-vars*/
@@ -10896,6 +10358,668 @@
 
 
 /***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Cube = __webpack_require__(4);
+
+	function Board(params) {
+	  this.cubes = [];
+	  this.level = params['level'];
+	  this.context = params['context'];
+	  this.qbert = params['qbert'];
+	  this.twobert = params['twobert'];
+	  this.score = params['score'];
+	}
+
+	Board.prototype.initializeCubes = function () {
+	  for (var rowCount = 0; rowCount < 7; rowCount++) {
+	    for (var cubeNumber = 0; cubeNumber <= rowCount; cubeNumber++) {
+	      var cubeAttributes = this.assignCubeParams(325, 60, rowCount, cubeNumber);
+	      var cube = new Cube(cubeAttributes);
+	      this.cubes.push(cube);
+	    }
+	  }
+	};
+
+	Board.prototype.drawCubes = function () {
+	  this.cubes.forEach(function (cube) {
+	    cube.drawCube();
+	  });
+	};
+
+	Board.prototype.assignCubeParams = function (originX, originY, rowCount, cubeNumber) {
+	  return {
+	    id: this.cubes.length,
+	    x: originX - rowCount * 40 + cubeNumber * 80,
+	    y: originY + rowCount * 60,
+	    upLeftId: cubeNumber > 0 ? this.cubes.length - rowCount - 1 : null,
+	    upRightId: cubeNumber < rowCount ? this.cubes.length - rowCount : null,
+	    downLeftId: this.cubes.length + (rowCount + 1) <= 27 ? this.cubes.length + (rowCount + 1) : null,
+	    downRightId: this.cubes.length + (rowCount + 2) <= 27 ? this.cubes.length + (rowCount + 2) : null,
+	    context: this.context
+	  };
+	};
+
+	Board.prototype.drawScoreBoard = function () {
+	  var scoreDiv = document.getElementById('scoreboard');
+	  scoreDiv.innerHTML = "Score: " + this.score.total;
+	};
+
+	Board.prototype.activateCube = function (id, player) {
+	  this.score.increase(25);
+	  this.cubes[id].active = true;
+	  this.cubes[id].drawCube(player);
+	};
+
+	module.exports = Board;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	function Cube(params) {
+	  this.active = false;
+	  this.id = params["id"];
+	  this.x = params["x"];
+	  this.y = params["y"];
+	  this.upLeftId = params["upLeftId"];
+	  this.upRightId = params["upRightId"];
+	  this.downLeftId = params["downLeftId"];
+	  this.downRightId = params["downRightId"];
+	  this.context = params['context'];
+	}
+
+	Cube.prototype.drawCube = function (player) {
+	  var topColor = this.setTopColor(player);
+	  this.drawTopSurface(topColor);
+	  this.drawLeftSurface();
+	  this.drawRightSurface();
+	};
+
+	Cube.prototype.setTopColor = function (player) {
+	  if (player == 1) {
+	    return this.active === true ? '#FFCC46' : '#3B6D80';
+	  } else if (player == 2) {
+	    return this.active === true ? '#33ccff' : '#3B6D80';
+	  } else {
+	    return '#3B6D80';
+	  }
+	};
+
+	Cube.prototype.drawRightSurface = function () {
+	  this.context.beginPath();
+	  this.context.moveTo(this.x, this.y + 20);
+	  this.context.lineTo(this.x, this.y + 70);
+	  this.context.lineTo(this.x + 40, this.y + 60);
+	  this.context.lineTo(this.x + 40, this.y + 10);
+	  this.context.fillStyle = "#47528B";
+	  this.context.fill();
+	};
+
+	Cube.prototype.drawLeftSurface = function () {
+	  this.context.beginPath();
+	  this.context.moveTo(this.x, this.y + 20);
+	  this.context.lineTo(this.x, this.y + 70);
+	  this.context.lineTo(this.x - 40, this.y + 60);
+	  this.context.lineTo(this.x - 40, this.y + 10);
+	  this.context.fillStyle = "#529A68";
+	  this.context.fill();
+	};
+
+	Cube.prototype.drawTopSurface = function (topColor) {
+	  this.context.beginPath();
+	  this.context.moveTo(this.x, this.y);
+	  this.context.lineTo(this.x + 40, this.y + 10);
+	  this.context.lineTo(this.x, this.y + 20);
+	  this.context.lineTo(this.x - 40, this.y + 10);
+	  this.context.fillStyle = topColor;
+	  this.context.fill();
+	};
+
+	module.exports = Cube;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	function Qbert(params) {
+	  this.lives = 3;
+	  this.currentPosition = 0;
+	  this.nextPosition = 0;
+	  this.board = params['board'];
+	  this.x = 325;
+	  this.y = 60;
+	  this.targetX = 0;
+	  this.xVelocity = 0;
+	  this.yVelocity = 0;
+	  this.context = params['context'];
+	  this.jumping = false;
+	  this.alive = true;
+	  this.identity = params['num'];
+	}
+
+	Qbert.prototype.update = function () {
+	  if (this.nextPosition === null && this.y < 620) {
+	    // add method to pull out this logic
+	    this.x += this.xVelocity;
+	    this.y += this.yVelocity;
+	    this.yVelocity += 0.5;
+	  } else if (this.nextPosition === null && this.y > 620) {
+	    this.die();
+	  } else if (this.x !== this.targetX) {
+	    this.x += this.xVelocity;
+	    this.y += this.yVelocity;
+	    if (this.jumping === true) {
+	      this.yVelocity += 0.5;
+	    }
+	  } else {
+	    this.jumping = false;
+	    this.xVelocity = 0;
+	    this.yVelocity = 0;
+	    this.currentPosition = this.nextPosition;
+
+	    if (this.board.cubes[this.currentPosition].active === false) {
+	      this.board.activateCube(this.currentPosition, this.identity);
+	    }
+	  }
+	};
+
+	Qbert.prototype.draw = function () {
+	  if (this.identity == 1) {
+	    this.context.lineWidth = 5;
+	    this.context.strokeStyle = '#ffccff';
+	    this.context.strokeRect(this.x - 10, this.y - 10, 20, 20);
+	    this.context.fillStyle = '#ff66ff';
+	  } else {
+	    this.context.lineWidth = 5;
+	    this.context.strokeStyle = '#00ff00';
+	    this.context.strokeRect(this.x - 10, this.y - 10, 20, 20);
+	    this.context.fillStyle = '#33cc33';
+	  }
+	  this.context.fillRect(this.x - 10, this.y - 10, 20, 20);
+	};
+
+	Qbert.prototype.die = function () {
+	  this.lives--;
+	  this.jumping = false;
+	  this.x = 325;
+	  this.y = 60;
+	  this.xVelocity = 0;
+	  this.yVelocity = 0;
+	  this.currentPosition = 0;
+	  this.nextPosition = 0;
+	};
+
+	Qbert.prototype.setBoard = function (board) {
+	  this.board = board;
+	};
+
+	Qbert.prototype.onCube = function () {
+	  return this.board.cubes[this.currentPosition] || this.board.cubes[0];
+	};
+
+	Qbert.prototype.upRight = function () {
+	  if (this.jumping === false) {
+	    this.targetX = this.x + 40;
+	    this.xVelocity = +2;
+	    this.yVelocity = -7.75;
+	    this.jumping = true;
+	    this.nextPosition = this.onCube().upRightId;
+	  }
+	};
+
+	Qbert.prototype.upLeft = function () {
+	  if (this.jumping === false) {
+	    this.targetX = this.x - 40;
+	    this.xVelocity = -2;
+	    this.yVelocity = -7.75;
+	    this.jumping = true;
+	    this.nextPosition = this.onCube().upLeftId;
+	  }
+	};
+
+	Qbert.prototype.downLeft = function () {
+	  if (this.jumping === false) {
+	    this.targetX = this.x - 40;
+	    this.xVelocity = -2;
+	    this.yVelocity = -1.75;
+	    this.jumping = true;
+	    this.nextPosition = this.onCube().downLeftId;
+	  }
+	};
+
+	Qbert.prototype.downRight = function () {
+	  if (this.jumping === false) {
+	    this.targetX = this.x + 40;
+	    this.xVelocity = +2;
+	    this.yVelocity = -1.75;
+	    this.jumping = true;
+	    this.nextPosition = this.onCube().downRightId;
+	  }
+	};
+
+	module.exports = Qbert;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var enemyPosition = __webpack_require__(7);
+
+	function Ball(params) {
+	  this.newPosition = enemyPosition();
+	  this.currentPosition = this.newPosition.position;
+	  this.nextPosition = this.newPosition.position;
+	  this.board = params['board'];
+	  this.x = this.newPosition.x;
+	  this.y = 120;
+	  this.targetX = 0;
+	  this.xVelocity = 0;
+	  this.yVelocity = 0;
+	  this.context = params['context'];
+	  this.jumping = false;
+	  this.moveInterval = 50;
+	  this.alive = true;
+	}
+
+	Ball.prototype.update = function (tick) {
+	  if (this.timeToMove(tick)) {
+	    this.move();
+	  }
+	  if (this.jumpingOffBoard()) {
+	    this.setPosition(this.xVelocity, this.yVelocity);
+	    this.fall();
+	  } else if (this.hasLeftScreen()) {
+	    this.die();
+	  } else if (this.inTransit()) {
+	    this.setPosition(this.xVelocity, this.yVelocity);
+	    if (this.jumping === true) {
+	      this.fall();
+	    }
+	  } else {
+	    this.stop();
+	  }
+	};
+
+	Ball.prototype.getYPosition = function () {
+	  return this.onCube.y;
+	};
+
+	Ball.prototype.timeToMove = function (tick) {
+	  return tick % this.moveInterval === 0;
+	};
+
+	Ball.prototype.jumpingOffBoard = function () {
+	  return this.nextPosition === null && this.y < 620;
+	};
+
+	Ball.prototype.hasLeftScreen = function () {
+	  return this.nextPosition === null && this.y > 620;
+	};
+
+	Ball.prototype.setPosition = function (x, y) {
+	  this.x += x;
+	  this.y += y;
+	};
+
+	Ball.prototype.fall = function () {
+	  this.yVelocity += 0.5;
+	};
+
+	Ball.prototype.inTransit = function () {
+	  return this.x !== this.targetX;
+	};
+
+	Ball.prototype.onCube = function () {
+	  return this.board.cubes[this.currentPosition] || this.board.cubes[0];
+	};
+
+	Ball.prototype.stop = function () {
+	  this.jumping = false;
+	  this.xVelocity = 0;
+	  this.yVelocity = 0;
+	  this.currentPosition = this.nextPosition;
+	};
+
+	Ball.prototype.draw = function () {
+	  this.context.fillStyle = 'crimson';
+	  this.context.beginPath();
+	  this.context.arc(this.x, this.y - 10, 15, 0, 2 * Math.PI, false);
+	  this.context.fill();
+	};
+
+	Ball.prototype.move = function () {
+	  var chance = Math.random();
+	  if (chance > 0.5) {
+	    this.downLeft();
+	  } else {
+	    this.downRight();
+	  }
+	};
+
+	Ball.prototype.die = function () {
+	  this.jumping = false;
+	  this.alive = false;
+	};
+
+	Ball.prototype.downLeft = function () {
+	  this.targetX = this.x - 40;
+	  this.xVelocity = -2;
+	  this.yVelocity = -1.75;
+	  this.jumping = true;
+	  this.nextPosition = this.onCube().downLeftId;
+	};
+
+	Ball.prototype.downRight = function () {
+	  this.targetX = this.x + 40;
+	  this.xVelocity = +2;
+	  this.yVelocity = -1.75;
+	  this.jumping = true;
+	  this.nextPosition = this.onCube().downRightId;
+	};
+
+	module.exports = Ball;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var enemyPosition = function enemyPosition() {
+	  var newPosition = null;
+	  var newX = null;
+
+	  var chance = Math.random();
+	  if (chance > 0.5) {
+	    newPosition = 1;
+	    newX = 285;
+	  } else {
+	    newPosition = 2;
+	    newX = 365;
+	  }
+	  return { position: newPosition, x: newX };
+	};
+
+	module.exports = enemyPosition;
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	function UserInput(params) {
+	  this.player = params['player'];
+	  this.player2 = params['player2'];
+	  this.context = params['context'];
+	  this.canvas = params['canvas'];
+	}
+
+	UserInput.prototype.setInput = function () {
+	  window.addEventListener("keydown", keyPress, false);
+	  window.addEventListener("keyup", keyRelease, false);
+
+	  var player = this.player;
+	  var player2 = this.player2;
+	  var context = this.context;
+	  var canvas = this.canvas;
+	  var tKey = document.getElementById("t");
+	  var yKey = document.getElementById("y");
+	  var gKey = document.getElementById("g");
+	  var hKey = document.getElementById("h");
+
+	  function keyPress(e) {
+	    var code = e.keyCode;
+	    if (code === 72) {
+	      player.downRight();
+	      hKey.style.backgroundColor = '#47528B';
+	    } else if (code === 71) {
+	      player.downLeft();
+	      gKey.style.backgroundColor = '#47528B';
+	    } else if (code === 84) {
+	      player.upLeft();
+	      tKey.style.backgroundColor = '#47528B';
+	    } else if (code === 89) {
+	      player.upRight();
+	      yKey.style.backgroundColor = '#47528B';
+	    } else if (code === 186) {
+	      player2.downRight();
+	      hKey.style.backgroundColor = '#47528B';
+	    } else if (code === 76) {
+	      player2.downLeft();
+	      gKey.style.backgroundColor = '#47528B';
+	    } else if (code === 79) {
+	      player2.upLeft();
+	      tKey.style.backgroundColor = '#47528B';
+	    } else if (code === 80) {
+	      player2.upRight();
+	      yKey.style.backgroundColor = '#47528B';
+	    }
+
+	    context.clearRect(0, 0, canvas.width, canvas.height);
+	    player.draw();
+	    player2.draw();
+	  }
+
+	  function keyRelease(e) {
+	    var code = e.keyCode;
+
+	    if (code === 72) {
+	      hKey.style.backgroundColor = 'black';
+	    } else if (code === 71) {
+	      gKey.style.backgroundColor = 'black';
+	    } else if (code === 84) {
+	      tKey.style.backgroundColor = 'black';
+	    } else if (code === 89) {
+	      yKey.style.backgroundColor = 'black';
+	    } else if (code === 186) {
+	      hKey.style.backgroundColor = 'black';
+	    } else if (code === 76) {
+	      gKey.style.backgroundColor = 'black';
+	    } else if (code === 79) {
+	      tKey.style.backgroundColor = 'black';
+	    } else if (code === 80) {
+	      yKey.style.backgroundColor = 'black';
+	    }
+	  }
+	};
+
+	// UserInput.prototype.setMobileInput = function() {
+	//   var mobile = document.getElementById('mobile-controls');
+	//   mobile.style.display = 'block';
+	//   var upLeft = document.getElementById('mobile-UL');
+	//   var upRight = document.getElementById('mobile-UR');
+	//   var downLeft = document.getElementById('mobile-DL');
+	//   var downRight = document.getElementById('mobile-DR');
+	//   var player = this.player;
+
+	//   console.log(upRight);
+
+	//   upLeft.addEventListener('click', function(){player.upLeft();}, false);
+	//   upRight.addEventListener('click', function() {player.upRight();}, false);
+	//   downLeft.addEventListener('click', function() {player.downLeft();}, false);
+	//   downRight.addEventListener('click', function() {player.downRight();}, false);
+	// };
+
+	module.exports = UserInput;
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var EndGame = __webpack_require__(10);
+	var Ball = __webpack_require__(6);
+
+	function Draw(params) {
+	  this.context = params['context'];
+	  this.canvas = params['canvas'];
+	  this.qbert = params['qbert'];
+	  this.twobert = params['twobert'];
+	  this.board = params['board'];
+	  this.score = params['score'];
+	  this.game = params['game'];
+	  this.characters = [this.qbert, this.twobert];
+	  this.enemies = [];
+	  this.tick = 0;
+	  this.enemyFreq = 500;
+	  this.level = 1;
+	}
+
+	Draw.prototype.drawFrame = function () {
+	  this.clearContext();
+	  this.updateCharacters();
+	  this.drawCharacters();
+	  this.detectCollisions();
+	  this.addEnemies();
+	  this.tick++;
+	  this.checkLevel();
+	  this.checkEnd();
+	  this.drawLives();
+	  this.drawScoreboard();
+	};
+
+	Draw.prototype.clearContext = function () {
+	  this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	};
+
+	Draw.prototype.updateCharacters = function () {
+	  this.characters = this.characters.filter(function (character) {
+	    return character.alive === true;
+	  });
+
+	  var currentTick = this.tick;
+	  this.characters.forEach(function (character) {
+	    character.update(currentTick);
+	  });
+	};
+
+	Draw.prototype.drawCharacters = function () {
+	  this.characters.forEach(function (character) {
+	    character.draw();
+	  });
+	};
+
+	Draw.prototype.detectCollisions = function () {
+	  var qbert = this.qbert;
+
+	  this.enemies.forEach(function (enemy) {
+	    var xDistance = enemy.x - qbert.x;
+	    var yDistance = enemy.y - qbert.y;
+	    var distance = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
+
+	    if (distance < 20) {
+	      console.log(enemy.currentPosition);
+	      qbert.die();
+	    }
+	  });
+	};
+
+	Draw.prototype.addEnemies = function () {
+	  if (this.tick !== 0 && this.tick % this.enemyFreq === 0) {
+	    var ball = new Ball({ board: this.board, context: this.context });
+	    this.characters.push(ball);
+	    this.enemies.push(ball);
+	  }
+	};
+
+	Draw.prototype.checkLevel = function () {
+	  var cubesRemaining = this.board.cubes.filter(function (cube) {
+	    return cube.active === false;
+	  });
+	  if (cubesRemaining.length === 0) {
+	    this.level++;
+	    if (this.enemyFreq > 100) {
+	      this.enemyFreq -= 100;
+	    } else {
+	      this.enemyFreq = this.enemyFreq / 2;
+	    }
+	    this.game.resetLevel();
+	  }
+	};
+
+	Draw.prototype.drawScoreboard = function () {
+	  var scoreDiv = document.getElementById('scoreboard');
+	  scoreDiv.innerHTML = '<h3>' + this.drawLevel() + '</h3><br>' + this.drawScore();
+	};
+
+	Draw.prototype.drawLives = function () {
+	  var livesDiv = document.getElementById('lives');
+	  var content = "";
+	  for (var i = 0; i < this.qbert.lives; i++) {
+	    content += "<img class='character-image' src='img/qbert.png' alt='qbert'>";
+	  }
+	  content += "<br>";
+	  for (var i = 0; i < this.twobert.lives; i++) {
+	    content += "<img class='character-image' src='img/twobert.png' alt='twobert'>";
+	  }
+	  livesDiv.innerHTML = content;
+	};
+
+	Draw.prototype.drawLevel = function () {
+	  return "LEVEL " + this.level;
+	};
+
+	Draw.prototype.drawScore = function () {
+	  return "SCORE: " + this.score.total;
+	};
+
+	Draw.prototype.checkEnd = function () {
+	  if (this.qbert.lives === 0) {
+	    var endGame = new EndGame(this.score);
+	    endGame.end();
+	  } else {
+	    var self = this;
+	    window.requestAnimationFrame(function () {
+	      self.drawFrame();
+	    });
+	  }
+	};
+
+	module.exports = Draw;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var $ = __webpack_require__(2);
+
+	function EndGame(score) {
+	  this.endMenu = $("#end-menu");
+	  this.score = score;
+	}
+
+	EndGame.prototype.end = function () {
+	  $('#game-score').text(this.score.total);
+	  $('#score-form').show();
+	  $('#top-scores').hide();
+	  this.endMenu.fadeIn('slow', function () {
+	    clearCharacter();
+	  });
+	};
+
+	function clearCharacter() {
+	  var canvas = document.getElementById("charCanvas");
+	  var context = canvas.getContext('2d');
+	  context.clearRect(0, 0, canvas.width, canvas.height);
+	}
+
+	module.exports = EndGame;
+
+/***/ },
 /* 11 */
 /***/ function(module, exports) {
 
@@ -10911,9 +11035,6 @@
 
 	Score.prototype.reset = function () {
 		this.total = 0;
-
-		var scoreDiv = document.getElementById("scoreboard");
-		scoreDiv.innerHTML = "Score: 0";
 	};
 
 	module.exports = Score;

@@ -13,9 +13,11 @@ function Game() {
   this.charContext = this.charCanvas.getContext('2d');
   this.score       = new Score();
   this.board       = new Board({context: this.bgContext, score: this.score});
-  this.qbert       = new Qbert({context: this.charContext, board: this.board});
+  this.qbert       = new Qbert({context: this.charContext, board: this.board, num: 1});
+  this.twobert     = new Qbert({context: this.charContext, board: this.board, num: 2})
   this.ball        = new Ball({context: this.charContext, board: this.board});
   this.draw        = new Draw({qbert:   this.qbert,
+                               twobert: this.twobert,
                                context: this.charContext,
                                canvas:  this.charCanvas,
                                board:   this.board,
@@ -27,6 +29,7 @@ function Game() {
 Game.prototype.setInput = function() {
   var input = new UserInput({level:  this.board,
                             player:  this.qbert,
+                            player2: this.twobert,
                             context: this.charContext,
                             canvas:  this.charCanvas
                           });
@@ -64,6 +67,7 @@ Game.prototype.resetGame = function() {
 Game.prototype.resetLevel = function() {
   this.resetCubes();
   this.resetQbert();
+  this.resetTwobert();
   this.resetCharacters();
   this.resetTick();
   this.celebrate();
@@ -117,10 +121,23 @@ Game.prototype.resetQbert = function() {
   this.qbert.jumping          = false;
 };
 
+Game.prototype.resetTwobert = function() {
+  this.twobert.currentPosition  = 0;
+  this.twobert.nextPosition     = 0;
+  this.twobert.x                = 325;
+  this.twobert.y                = 60;
+  this.twobert.targetX          = 0;
+  this.twobert.xVelocity        = 0;
+  this.twobert.yVelocity        = 0;
+  this.twobert.jumping          = false;
+};
+
 Game.prototype.resetCharacters = function(){
   this.draw.characters = [this.qbert];
+  this.draw.characters = [this.twobert];
   this.draw.enemies    = [];
   this.qbert.setBoard(this.board);
+  this.twobert.setBoard(this.board);
 };
 
 Game.prototype.reanimate = function(){

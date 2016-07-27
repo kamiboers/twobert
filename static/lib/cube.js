@@ -10,15 +10,21 @@ function Cube(params) {
   this.context      = params['context'];
 }
 
-Cube.prototype.drawCube = function(){
-  var topColor = this.setTopColor();
+Cube.prototype.drawCube = function(player){
+  var topColor = this.setTopColor(player);
   this.drawTopSurface(topColor);
   this.drawLeftSurface();
   this.drawRightSurface();
 };
 
-Cube.prototype.setTopColor = function() {
-  return this.active === true ? '#FFCC46' : '#3B6D80';
+Cube.prototype.setTopColor = function(player) {
+  if (player == 1) {
+    return this.active === true ? '#FFCC46' : '#3B6D80';
+  } else if (player == 2) {
+    return this.active === true ? '#33ccff' : '#3B6D80';
+  } else {
+    return '#3B6D80';
+  }
 };
 
 Cube.prototype.drawRightSurface = function() {

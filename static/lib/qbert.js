@@ -11,6 +11,7 @@ function Qbert(params) {
   this.context          = params['context'];
   this.jumping          = false;
   this.alive            = true;
+  this.identity              = params['num'];
 }
 
 Qbert.prototype.update = function() {
@@ -34,14 +35,24 @@ Qbert.prototype.update = function() {
     this.currentPosition = this.nextPosition;
 
     if ( this.board.cubes[this.currentPosition].active === false ) {
-      this.board.activateCube(this.currentPosition);
+      this.board.activateCube(this.currentPosition, this.identity);
     }
   }
 };
 
 Qbert.prototype.draw = function() {
+  if (this.identity == 1) {
+    this.context.lineWidth=5;
+  this.context.strokeStyle = '#ffccff'
+  this.context.strokeRect(this.x-10, this.y-10, 20, 20)
   this.context.fillStyle = '#ff66ff';
-	this.context.fillRect(this.x-10, this.y-10, 20, 20);
+  } else {
+  this.context.lineWidth=5;
+  this.context.strokeStyle = '#00ff00'
+  this.context.strokeRect(this.x-10, this.y-10, 20, 20)
+    this.context.fillStyle = '#33cc33'
+  }
+  this.context.fillRect(this.x-10, this.y-10, 20, 20);
 };
 
 Qbert.prototype.die = function(){

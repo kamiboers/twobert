@@ -5,10 +5,11 @@ function Draw(params) {
   this.context    = params['context'];
   this.canvas     = params['canvas'];
   this.qbert      = params['qbert'];
+  this.twobert    = params['twobert'];
   this.board      = params['board'];
   this.score      = params['score'];
   this.game       = params['game'];
-  this.characters = [this.qbert];
+  this.characters = [this.qbert, this.twobert];
   this.enemies    = [];
   this.tick       = 0;
   this.enemyFreq  = 500;
@@ -97,6 +98,10 @@ Draw.prototype.drawLives = function(){
   var content = "";
   for (var i=0; i < this.qbert.lives; i++){
     content += "<img class='character-image' src='img/qbert.png' alt='qbert'>";
+  }
+  content += "<br>"
+  for (var i=0; i < this.twobert.lives; i++){
+    content += "<img class='character-image' src='img/twobert.png' alt='twobert'>";
   }
   livesDiv.innerHTML = content;
 };

@@ -5,6 +5,7 @@ function Board(params) {
   this.level = params['level'];
   this.context = params['context'];
   this.qbert = params['qbert'];
+  this.twobert = params['twobert'];
   this.score = params['score'];
 }
 
@@ -42,10 +43,10 @@ Board.prototype.drawScoreBoard = function() {
   scoreDiv.innerHTML= "Score: " + this.score.total;
 };
 
-Board.prototype.activateCube = function(id){
+Board.prototype.activateCube = function(id, player){
     this.score.increase(25);
     this.cubes[id].active = true;
-    this.cubes[id].drawCube();
+    this.cubes[id].drawCube(player);
 };
 
 module.exports = Board;
