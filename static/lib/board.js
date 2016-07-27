@@ -44,7 +44,7 @@ Board.prototype.drawScoreBoard = function() {
 };
 
 Board.prototype.activateCube = function(id, player){
-    this.score.increase(25);
+    this.score.increase(25, player);
     this.cubes[id].active = true;
     this.cubes[id].drawCube(player);
 };

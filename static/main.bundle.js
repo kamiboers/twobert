@@ -10409,7 +10409,7 @@
 	};
 
 	Board.prototype.activateCube = function (id, player) {
-	  this.score.increase(25);
+	  this.score.increase(25, player);
 	  this.cubes[id].active = true;
 	  this.cubes[id].drawCube(player);
 	};
@@ -10535,7 +10535,7 @@
 
 	Qbert.prototype.draw = function () {
 	  if (this.dying) {
-	    this.drawBubble(this.x + 15, this.y - 20, 135, 20, 10);
+	    this.drawBubble(this.x + 15, this.y - 20, 138, 20, 10);
 	  }
 	  if (this.identity == 1) {
 	    this.context.lineWidth = 5;
@@ -11026,7 +11026,7 @@
 
 	Draw.prototype.drawScoreboard = function () {
 	  var scoreDiv = document.getElementById('scoreboard');
-	  scoreDiv.innerHTML = '<h3>' + this.drawLevel() + '</h3><br>' + this.drawScore();
+	  scoreDiv.innerHTML = '<h3>' + this.drawLevel() + '</h3>' + this.drawScore();
 	};
 
 	Draw.prototype.drawLives = function () {
@@ -11047,7 +11047,7 @@
 	};
 
 	Draw.prototype.drawScore = function () {
-	  return "SCORE: " + this.score.total;
+	  return "PLAYER ONE: " + this.score.player1 + "<br>PLAYER TWO:" + this.score.player2;
 	};
 
 	Draw.prototype.checkEnd = function () {
@@ -11101,15 +11101,21 @@
 	"use strict";
 
 	function Score() {
-		this.total = 0;
+	  this.player1 = 0;
+	  this.player2 = 0;
 	}
 
-	Score.prototype.increase = function (n) {
-		this.total += n;
+	Score.prototype.increase = function (n, player) {
+	  if (player == 1) {
+	    this.player1 += n;
+	  } else {
+	    this.player2 += n;
+	  }
 	};
 
 	Score.prototype.reset = function () {
-		this.total = 0;
+	  this.player1 = 0;
+	  this.player2 = 0;
 	};
 
 	module.exports = Score;

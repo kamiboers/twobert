@@ -111,7 +111,7 @@ Draw.prototype.checkLevel = function() {
 
 Draw.prototype.drawScoreboard = function() {
   var scoreDiv = document.getElementById('scoreboard');
-  scoreDiv.innerHTML = '<h3>' + this.drawLevel() + '</h3><br>' + this.drawScore();
+  scoreDiv.innerHTML = '<h3>' + this.drawLevel() + '</h3>' + this.drawScore();
 };
 
 Draw.prototype.drawLives = function(){
@@ -133,7 +133,7 @@ Draw.prototype.drawLevel = function() {
 };
 
 Draw.prototype.drawScore = function() {
-  return "SCORE: " + this.score.total;
+  return "PLAYER ONE: " + this.score.player1 + "<br>PLAYER TWO:" + this.score.player2;
 };
 
 Draw.prototype.checkEnd = function() {

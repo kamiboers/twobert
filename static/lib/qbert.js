@@ -11,7 +11,7 @@ function Qbert(params) {
   this.context          = params['context'];
   this.jumping          = false;
   this.alive            = true;
-  this.identity              = params['num'];
+  this.identity         = params['num'];
   this.dying            = false;
 }
 
