@@ -44,7 +44,7 @@ Qbert.prototype.update = function() {
 
 Qbert.prototype.draw = function() {
   if (this.dying) {
-    this.drawBubble(this.x+15, this.y-20, 138, 20, 10)
+    this.drawBubble(this.x+15, this.y-20, 100, 20, 10)
   }
   if (this.identity == 1) {
     this.context.lineWidth=5;
@@ -154,21 +154,9 @@ Qbert.prototype.drawBubble = function(x, y, w, h, radius, text) {
     this.context.font = "18px Comic Sans MS";
     this.context.fillStyle = "red";
 
-    this.context.fillText('motherfucker!', x+10, y-5);
+    this.context.fillText('#@!@&$!', x+10, y-5);
 
     return handle;
 };
-
-// Qbert.prototype.setMessage = function() {
-//   var messages =  [ 
-//                     // "&$#@*&@",
-//                     // "farewell",
-//                     // "agh!",
-//                     // "I'M EVERY WOMAN!!! IT'S ALL IN MEEEEEEEEEEEE!!! ANYTHING YOU WANT DONE BABY I'LL DO IT NATURALLY!!! (OHH OHH OOOHHHH)"
-//                   ];
-
-//   return messages[Math.floor(Math.random() * messages.length)]
-// };
-
 
 module.exports = Qbert;

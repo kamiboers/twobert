@@ -75,13 +75,9 @@ Draw.prototype.detectCollisions = function() {
     var distance  = Math.sqrt((xDistance * xDistance) + (yDistance * yDistance));
 
     if(distance < 20 && twobert.dying == false){
-      // console.log(enemy.currentPosition);
       twobert.dying = true;
       twobert.downRight();
-      twobert.nextPosition = null;
-
-      // setTimeout(function(){twobert.die();}, 1000)
-      
+      twobert.nextPosition = null;      
     }
   });
 };
