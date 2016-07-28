@@ -138,7 +138,7 @@ Draw.prototype.drawScore = function() {
 
 Draw.prototype.checkEnd = function() {
   if(this.qbert.lives === 0 || this.twobert.lives === 0) {
-    var endGame = new EndGame(this.score);
+    var endGame = new EndGame(this.score, this.qbert.lives, this.twobert.lives);
     endGame.end();
   } else {
     var self = this;
