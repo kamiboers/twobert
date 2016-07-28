@@ -219,6 +219,7 @@
 
 	Game.prototype.resetLives = function () {
 	  this.qbert.lives = 3;
+	  this.twobert.lives = 3;
 	};
 
 	Game.prototype.resetQbert = function () {
@@ -233,8 +234,8 @@
 	};
 
 	Game.prototype.resetTwobert = function () {
-	  this.twobert.currentPosition = 28;
-	  this.twobert.nextPosition = 28;
+	  this.twobert.currentPosition = 27;
+	  this.twobert.nextPosition = 27;
 	  this.twobert.x = 565;
 	  this.twobert.y = 420;
 	  this.twobert.targetX = 0;
@@ -10405,7 +10406,7 @@
 
 	Board.prototype.drawScoreBoard = function () {
 	  var scoreDiv = document.getElementById('scoreboard');
-	  scoreDiv.innerHTML = "Score: " + this.score.total;
+	  scoreDiv.innerHTML = "PLAYER ONE: " + this.player1 + "<br>PLAYER TWO: " + this.player2;
 	};
 
 	Board.prototype.activateCube = function (id, player) {
@@ -10651,7 +10652,7 @@
 	};
 
 	// Qbert.prototype.setMessage = function() {
-	//   var messages =  [ "fuck",
+	//   var messages =  [
 	//                     // "&$#@*&@",
 	//                     // "farewell",
 	//                     // "agh!",
@@ -11047,11 +11048,11 @@
 	};
 
 	Draw.prototype.drawScore = function () {
-	  return "PLAYER ONE: " + this.score.player1 + "<br>PLAYER TWO:" + this.score.player2;
+	  return "PLAYER ONE: <span id='score1'>" + this.score.player1 + "</span><br>PLAYER TWO: <span id='score2'>" + this.score.player2 + "</span";
 	};
 
 	Draw.prototype.checkEnd = function () {
-	  if (this.qbert.lives === 0) {
+	  if (this.qbert.lives === 0 || this.twobert.lives === 0) {
 	    var endGame = new EndGame(this.score);
 	    endGame.end();
 	  } else {
@@ -11078,7 +11079,7 @@
 	}
 
 	EndGame.prototype.end = function () {
-	  $('#game-score').text(this.score.total);
+	  $('#game-score').text("PLAYER 1: " + this.score.player1 + "<br>PLAYER 2: " + this.score.player2);
 	  $('#score-form').show();
 	  $('#top-scores').hide();
 	  this.endMenu.fadeIn('slow', function () {

@@ -109,6 +109,7 @@ Game.prototype.resetCubes = function(){
 
 Game.prototype.resetLives = function() {
   this.qbert.lives = 3;
+  this.twobert.lives = 3;
 };
 
 Game.prototype.resetQbert = function() {
@@ -123,8 +124,8 @@ Game.prototype.resetQbert = function() {
 };
 
 Game.prototype.resetTwobert = function() {
-  this.twobert.currentPosition  = 28;
-  this.twobert.nextPosition     = 28;
+  this.twobert.currentPosition  = 27;
+  this.twobert.nextPosition     = 27;
   this.twobert.x                = 565;
   this.twobert.y                = 420;
   this.twobert.targetX          = 0;

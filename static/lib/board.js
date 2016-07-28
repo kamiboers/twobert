@@ -40,7 +40,7 @@ Board.prototype.assignCubeParams = function(originX, originY, rowCount, cubeNumb
 
 Board.prototype.drawScoreBoard = function() {
   var scoreDiv = document.getElementById('scoreboard');
-  scoreDiv.innerHTML= "Score: " + this.score.total;
+  scoreDiv.innerHTML= "PLAYER ONE: " + this.player1 + "<br>PLAYER TWO: " + this.player2;
 };
 
 Board.prototype.activateCube = function(id, player){

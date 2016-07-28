@@ -133,11 +133,11 @@ Draw.prototype.drawLevel = function() {
 };
 
 Draw.prototype.drawScore = function() {
-  return "PLAYER ONE: " + this.score.player1 + "<br>PLAYER TWO:" + this.score.player2;
+  return "PLAYER ONE: <span id='score1'>" + this.score.player1 + "</span><br>PLAYER TWO: <span id='score2'>" + this.score.player2 + "</span";
 };
 
 Draw.prototype.checkEnd = function() {
-  if(this.qbert.lives === 0) {
+  if(this.qbert.lives === 0 || this.twobert.lives === 0) {
     var endGame = new EndGame(this.score);
     endGame.end();
   } else {

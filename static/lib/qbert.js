@@ -160,7 +160,7 @@ Qbert.prototype.drawBubble = function(x, y, w, h, radius, text) {
 };
 
 // Qbert.prototype.setMessage = function() {
-//   var messages =  [ "fuck",
+//   var messages =  [ 
 //                     // "&$#@*&@",
 //                     // "farewell",
 //                     // "agh!",

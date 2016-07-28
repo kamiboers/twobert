@@ -88,14 +88,19 @@ body {
 	text-align: center;
 	color: white;
 	border: solid green 1px;
+	font-size: 18px;
 	font-family: "ocr-a-std", monospace;
-	width: 150px;
-	height: 100px;
+	width: 180px;
+	height: 120px;
 	float: right;
 	background-color: black;
 	margin: 20px;
 	padding: 10px;
 	z-index: 50;
+}
+
+span.score1, span.score2 {
+	float: right;
 }
 
 #bottom-display {
