@@ -121,6 +121,7 @@ Game.prototype.resetQbert = function() {
   this.qbert.xVelocity        = 0;
   this.qbert.yVelocity        = 0;
   this.qbert.jumping          = false;
+  this.qbert.dying            = false;
 };
 
 Game.prototype.resetTwobert = function() {
@@ -132,6 +133,7 @@ Game.prototype.resetTwobert = function() {
   this.twobert.xVelocity        = 0;
   this.twobert.yVelocity        = 0;
   this.twobert.jumping          = false;
+  this.twobert.dying            = false;
 };
 
 Game.prototype.resetCharacters = function(){

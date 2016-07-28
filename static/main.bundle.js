@@ -231,6 +231,7 @@
 	  this.qbert.xVelocity = 0;
 	  this.qbert.yVelocity = 0;
 	  this.qbert.jumping = false;
+	  this.qbert.dying = false;
 	};
 
 	Game.prototype.resetTwobert = function () {
@@ -242,6 +243,7 @@
 	  this.twobert.xVelocity = 0;
 	  this.twobert.yVelocity = 0;
 	  this.twobert.jumping = false;
+	  this.twobert.dying = false;
 	};
 
 	Game.prototype.resetCharacters = function () {
@@ -10536,7 +10538,7 @@
 
 	Qbert.prototype.draw = function () {
 	  if (this.dying) {
-	    this.drawBubble(this.x + 15, this.y - 20, 138, 20, 10);
+	    this.drawBubble(this.x + 15, this.y - 20, 100, 20, 10);
 	  }
 	  if (this.identity == 1) {
 	    this.context.lineWidth = 5;
@@ -10646,7 +10648,7 @@
 	  this.context.font = "18px Comic Sans MS";
 	  this.context.fillStyle = "red";
 
-	  this.context.fillText('motherfucker!', x + 10, y - 5);
+	  this.context.fillText('#@!@&$!', x + 10, y - 5);
 
 	  return handle;
 	};
