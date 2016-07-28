@@ -11,6 +11,20 @@ body {
 	margin: auto;
 }
 
+span#winner {
+	font-size: 60px;
+}
+
+#p1-score {
+	font-size: 30px;
+	color: pink;
+	margin-right: 10px;
+}
+#p2-score {
+	font-size: 30px;
+	color: green;
+}
+
 #bgCanvas {
   background-color: black;
   z-index: 0;
@@ -21,13 +35,25 @@ body {
   z-index: 1;
 }
 
-#start-menu, #end-menu, #fireworks {
+#start-menu, #fireworks {
 	background-color: black;
 	text-align: center;
 	color: white;
 	padding: 0;
 	font-family: "ocr-a-std", monospace;
 	width: 650px;
+	height: 650px;
+	position: absolute;
+  z-index: 101;
+}
+
+#end-menu {
+	background-color: black;
+	text-align: center;
+	color: white;
+	padding: 0;
+	font-family: "ocr-a-std", monospace;
+	width: 800px;
 	height: 650px;
 	position: absolute;
   z-index: 101;
@@ -88,14 +114,19 @@ body {
 	text-align: center;
 	color: white;
 	border: solid green 1px;
+	font-size: 18px;
 	font-family: "ocr-a-std", monospace;
-	width: 150px;
-	height: 100px;
+	width: 180px;
+	height: 120px;
 	float: right;
 	background-color: black;
 	margin: 20px;
 	padding: 10px;
 	z-index: 50;
+}
+
+span.score1, span.score2 {
+	float: right;
 }
 
 #bottom-display {

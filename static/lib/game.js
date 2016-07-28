@@ -13,9 +13,11 @@ function Game() {
   this.charContext = this.charCanvas.getContext('2d');
   this.score       = new Score();
   this.board       = new Board({context: this.bgContext, score: this.score});
-  this.qbert       = new Qbert({context: this.charContext, board: this.board});
+  this.qbert       = new Qbert({context: this.charContext, board: this.board, num: 1, position: 21, x: 85, y: 420});
+  this.twobert     = new Qbert({context: this.charContext, board: this.board, num: 2, position: 27, x: 565, y: 420})
   this.ball        = new Ball({context: this.charContext, board: this.board});
   this.draw        = new Draw({qbert:   this.qbert,
+                               twobert: this.twobert,
                                context: this.charContext,
                                canvas:  this.charCanvas,
                                board:   this.board,
@@ -27,6 +29,7 @@ function Game() {
 Game.prototype.setInput = function() {
   var input = new UserInput({level:  this.board,
                             player:  this.qbert,
+                            player2: this.twobert,
                             context: this.charContext,
                             canvas:  this.charCanvas
                           });
@@ -53,6 +56,7 @@ Game.prototype.resetGame = function() {
   this.resetCubes();
   this.resetLives();
   this.resetQbert();
+  this.resetTwobert();
   this.resetCharacters();
   this.resetScore();
   this.resetDifficulty();
@@ -64,6 +68,7 @@ Game.prototype.resetGame = function() {
 Game.prototype.resetLevel = function() {
   this.resetCubes();
   this.resetQbert();
+  this.resetTwobert();
   this.resetCharacters();
   this.resetTick();
   this.celebrate();
@@ -91,7 +96,7 @@ Game.prototype.celebrate = function() {
    setTimeout(function() { 
        $('#fireworks').fadeOut(); 
        $('#congrats').text("");
-   }, 2000);
+   }, 3000);
 };
 
 Game.prototype.resetCubes = function(){
@@ -104,23 +109,36 @@ Game.prototype.resetCubes = function(){
 
 Game.prototype.resetLives = function() {
   this.qbert.lives = 3;
+  this.twobert.lives = 3;
 };
 
 Game.prototype.resetQbert = function() {
-  this.qbert.currentPosition  = 0;
-  this.qbert.nextPosition     = 0;
-  this.qbert.x                = 325;
-  this.qbert.y                = 60;
+  this.qbert.currentPosition  = 21;
+  this.qbert.nextPosition     = 21;
+  this.qbert.x                = 85;
+  this.qbert.y                = 420;
   this.qbert.targetX          = 0;
   this.qbert.xVelocity        = 0;
   this.qbert.yVelocity        = 0;
   this.qbert.jumping          = false;
 };
 
+Game.prototype.resetTwobert = function() {
+  this.twobert.currentPosition  = 27;
+  this.twobert.nextPosition     = 27;
+  this.twobert.x                = 565;
+  this.twobert.y                = 420;
+  this.twobert.targetX          = 0;
+  this.twobert.xVelocity        = 0;
+  this.twobert.yVelocity        = 0;
+  this.twobert.jumping          = false;
+};
+
 Game.prototype.resetCharacters = function(){
-  this.draw.characters = [this.qbert];
+  this.draw.characters = [this.qbert, this.twobert];
   this.draw.enemies    = [];
   this.qbert.setBoard(this.board);
+  this.twobert.setBoard(this.board);
 };
 
 Game.prototype.reanimate = function(){

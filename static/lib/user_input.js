@@ -1,5 +1,6 @@
 function UserInput(params){
   this.player  = params['player'];
+  this.player2 = params['player2'];
   this.context = params['context'];
   this.canvas  = params['canvas'];
 }
@@ -9,6 +10,7 @@ UserInput.prototype.setInput = function() {
   window.addEventListener("keyup", keyRelease, false);
 
   var player  = this.player;
+  var player2  = this.player2;
   var context = this.context;
   var canvas  = this.canvas;
   var tKey    = document.getElementById("t");
@@ -30,10 +32,23 @@ UserInput.prototype.setInput = function() {
     } else if (code === 89) {
       player.upRight();
       yKey.style.backgroundColor = '#47528B';
+    } else if (code === 186) {
+      player2.downRight();
+      hKey.style.backgroundColor = '#47528B';
+    } else if (code === 76) {
+      player2.downLeft();
+      gKey.style.backgroundColor = '#47528B';
+    } else if (code === 79) {
+      player2.upLeft();
+      tKey.style.backgroundColor = '#47528B';
+    } else if (code === 80) {
+      player2.upRight();
+      yKey.style.backgroundColor = '#47528B';
     }
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     player.draw();
+    player2.draw();
   }
 
   function keyRelease(e) {
@@ -47,25 +62,33 @@ UserInput.prototype.setInput = function() {
       tKey.style.backgroundColor = 'black';
     } else if (code === 89) {
       yKey.style.backgroundColor = 'black';
+    } else if (code === 186) {
+      hKey.style.backgroundColor = 'black';
+    } else if (code === 76) {
+      gKey.style.backgroundColor = 'black';
+    } else if (code === 79) {
+      tKey.style.backgroundColor = 'black';
+    } else if (code === 80) {
+      yKey.style.backgroundColor = 'black';
     }
   }
 };
 
-UserInput.prototype.setMobileInput = function() {
-  var mobile = document.getElementById('mobile-controls');
-  mobile.style.display = 'block';
-  var upLeft = document.getElementById('mobile-UL');
-  var upRight = document.getElementById('mobile-UR');
-  var downLeft = document.getElementById('mobile-DL');
-  var downRight = document.getElementById('mobile-DR');
-  var player = this.player;
+// UserInput.prototype.setMobileInput = function() {
+//   var mobile = document.getElementById('mobile-controls');
+//   mobile.style.display = 'block';
+//   var upLeft = document.getElementById('mobile-UL');
+//   var upRight = document.getElementById('mobile-UR');
+//   var downLeft = document.getElementById('mobile-DL');
+//   var downRight = document.getElementById('mobile-DR');
+//   var player = this.player;
 
-  console.log(upRight);
+//   console.log(upRight);
 
-  upLeft.addEventListener('click', function(){player.upLeft();}, false);
-  upRight.addEventListener('click', function() {player.upRight();}, false);
-  downLeft.addEventListener('click', function() {player.downLeft();}, false);
-  downRight.addEventListener('click', function() {player.downRight();}, false);
-};
+//   upLeft.addEventListener('click', function(){player.upLeft();}, false);
+//   upRight.addEventListener('click', function() {player.upRight();}, false);
+//   downLeft.addEventListener('click', function() {player.downLeft();}, false);
+//   downRight.addEventListener('click', function() {player.downRight();}, false);
+// };
 
 module.exports = UserInput;

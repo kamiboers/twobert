@@ -5,6 +5,7 @@ function Board(params) {
   this.level = params['level'];
   this.context = params['context'];
   this.qbert = params['qbert'];
+  this.twobert = params['twobert'];
   this.score = params['score'];
 }
 
@@ -39,13 +40,13 @@ Board.prototype.assignCubeParams = function(originX, originY, rowCount, cubeNumb
 
 Board.prototype.drawScoreBoard = function() {
   var scoreDiv = document.getElementById('scoreboard');
-  scoreDiv.innerHTML= "Score: " + this.score.total;
+  scoreDiv.innerHTML= "PLAYER ONE: " + this.player1 + "<br>PLAYER TWO: " + this.player2;
 };
 
-Board.prototype.activateCube = function(id){
-    this.score.increase(25);
+Board.prototype.activateCube = function(id, player){
+    this.score.increase(25, player);
     this.cubes[id].active = true;
-    this.cubes[id].drawCube();
+    this.cubes[id].drawCube(player);
 };
 
 module.exports = Board;

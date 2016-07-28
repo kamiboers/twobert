@@ -5,10 +5,11 @@ function Draw(params) {
   this.context    = params['context'];
   this.canvas     = params['canvas'];
   this.qbert      = params['qbert'];
+  this.twobert    = params['twobert'];
   this.board      = params['board'];
   this.score      = params['score'];
   this.game       = params['game'];
-  this.characters = [this.qbert];
+  this.characters = [this.qbert, this.twobert];
   this.enemies    = [];
   this.tick       = 0;
   this.enemyFreq  = 500;
@@ -51,15 +52,36 @@ Draw.prototype.drawCharacters = function() {
 
 Draw.prototype.detectCollisions = function() {
   var qbert = this.qbert;
-
+  var twobert = this.twobert;
+  
   this.enemies.forEach(function(enemy){
     var xDistance = enemy.x - qbert.x;
     var yDistance = enemy.y - qbert.y;
     var distance  = Math.sqrt((xDistance * xDistance) + (yDistance * yDistance));
 
-    if(distance < 20){
-      console.log(enemy.currentPosition);
-      qbert.die();
+    if(distance < 20 && qbert.dying == false){
+      // console.log(enemy.currentPosition);
+      qbert.dying = true;
+      qbert.downLeft(); 
+      qbert.nextPosition = null;
+      // setTimeout(function(){qbert.die();}, 1000)
+      
+    }
+  });
+
+  this.enemies.forEach(function(enemy){
+    var xDistance = enemy.x - twobert.x;
+    var yDistance = enemy.y - twobert.y;
+    var distance  = Math.sqrt((xDistance * xDistance) + (yDistance * yDistance));
+
+    if(distance < 20 && twobert.dying == false){
+      // console.log(enemy.currentPosition);
+      twobert.dying = true;
+      twobert.downRight();
+      twobert.nextPosition = null;
+
+      // setTimeout(function(){twobert.die();}, 1000)
+      
     }
   });
 };
@@ -89,7 +111,7 @@ Draw.prototype.checkLevel = function() {
 
 Draw.prototype.drawScoreboard = function() {
   var scoreDiv = document.getElementById('scoreboard');
-  scoreDiv.innerHTML = '<h3>' + this.drawLevel() + '</h3><br>' + this.drawScore();
+  scoreDiv.innerHTML = '<h3>' + this.drawLevel() + '</h3>' + this.drawScore();
 };
 
 Draw.prototype.drawLives = function(){
@@ -97,6 +119,10 @@ Draw.prototype.drawLives = function(){
   var content = "";
   for (var i=0; i < this.qbert.lives; i++){
     content += "<img class='character-image' src='img/qbert.png' alt='qbert'>";
+  }
+  content += "<br>"
+  for (var i=0; i < this.twobert.lives; i++){
+    content += "<img class='character-image' src='img/twobert.png' alt='twobert'>";
   }
   livesDiv.innerHTML = content;
 };
@@ -107,12 +133,12 @@ Draw.prototype.drawLevel = function() {
 };
 
 Draw.prototype.drawScore = function() {
-  return "SCORE: " + this.score.total;
+  return "PLAYER ONE: <span id='score1'>" + this.score.player1 + "</span><br>PLAYER TWO: <span id='score2'>" + this.score.player2 + "</span";
 };
 
 Draw.prototype.checkEnd = function() {
-  if(this.qbert.lives === 0) {
-    var endGame = new EndGame(this.score);
+  if(this.qbert.lives === 0 || this.twobert.lives === 0) {
+    var endGame = new EndGame(this.score, this.qbert.lives, this.twobert.lives);
     endGame.end();
   } else {
     var self = this;
