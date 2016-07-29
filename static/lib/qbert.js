@@ -159,16 +159,4 @@ Qbert.prototype.drawBubble = function(x, y, w, h, radius, text) {
     return handle;
 };
 
-// Qbert.prototype.setMessage = function() {
-//   var messages =  [ 
-//                     // "&$#@*&@",
-//                     // "farewell",
-//                     // "agh!",
-//                     // "I'M EVERY WOMAN!!! IT'S ALL IN MEEEEEEEEEEEE!!! ANYTHING YOU WANT DONE BABY I'LL DO IT NATURALLY!!! (OHH OHH OOOHHHH)"
-//                   ];
-
-//   return messages[Math.floor(Math.random() * messages.length)]
-// };
-
-
 module.exports = Qbert;

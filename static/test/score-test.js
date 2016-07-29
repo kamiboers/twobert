@@ -5,8 +5,9 @@ describe('Score', function(){
   context('when initialized', function(){
     var score = new Score({});
 
-    it('defaults to a total of zero', function(){
-      assert.equal(score.total, 0);
+    it('defaults both players to a total of zero', function(){
+      assert.equal(score.player1, 0);
+      assert.equal(score.player2, 0);
     });
   
   });
@@ -15,10 +16,10 @@ describe('Score', function(){
 	var score = new Score({});
 
     it('increments by any amount', function(){
-      score.increase(25);
-      assert.equal(score.total, 25);
-      score.increase(100);
-      assert.equal(score.total, 125);
+      score.increase(25, 1);
+      assert.equal(score.player1, 25);
+      score.increase(100, 1);
+      assert.equal(score.player1, 125);
     });
 
   });
@@ -27,10 +28,13 @@ describe('Score', function(){
 	var score = new Score({});
 
     it('is zero after reset', function(){
-      score.increase(100);
-      assert.equal(score.total, 100);
+      score.increase(100, 1);
+      score.increase(12, 2);
+      assert.equal(score.player1, 100);
+      assert.equal(score.player2, 12);
       score.reset();
-      assert.equal(score.total, 0);
+      assert.equal(score.player1, 0);
+      assert.equal(score.player2, 0);
     });
 
   });

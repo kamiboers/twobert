@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   entry: {
     main: "./static/lib/index.js",
-    test: "mocha!./test/index.js"
+    test: "mocha!./static/test/index.js"
   },
   output: {
     path: path.join(__dirname, '/static'),
